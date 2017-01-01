@@ -1,9 +1,0 @@
-{
-	"Changelist" : 3224400,
-	"CompatibleChangelist" : 3195953,
-	"BuildId" : "",
-	"Modules" : 
-	{
-		"Battle_Tank" : "UE4Editor-Battle_Tank.dylib"
-	}
-}
