@@ -6,3 +6,8 @@ Binaries/*
 DerivedDataCache/*
 Intermediate/*
 Saved/*
+HTML5/*
+MacNoEditor/*
+
+## Other
+*.DS_Store
