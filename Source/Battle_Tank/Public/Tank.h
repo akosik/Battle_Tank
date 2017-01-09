@@ -5,9 +5,7 @@
 #include "GameFramework/Pawn.h"
 #include "Tank.generated.h"
 
-class UTankBarrel;
-class UTankAimingComponent;
-class AProjectile;
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTankDelegate);
 
 UCLASS()
 class BATTLE_TANK_API ATank : public APawn
@@ -15,36 +13,21 @@ class BATTLE_TANK_API ATank : public APawn
 	GENERATED_BODY()
 
 public:
-  void AimAt(FVector& HitLocation);
+  UFUNCTION(BlueprintPure, Category = "Health")
+  float GetHealthPercent() const;
 
-  UFUNCTION(BlueprintCallable, Category = Setup)
-    void SetBarrelReference(UTankBarrel* BarrelToSet);
-
-
-  UFUNCTION(BlueprintCallable, Category = Setup)
-    void SetTurretReference(UTankTurret* TurretToSet);
-
-  UFUNCTION(BlueprintCallable, Category = Firing)
-    void Fire();
-
-protected:
-  UTankAimingComponent* TankAimingComponent = nullptr;
+  FTankDelegate OnDeath;
 
 private:
 	// Sets default values for this pawn's properties
 	ATank();
 
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+        virtual void BeginPlay() override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
+        float TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController * EventInstigator, AActor * DamageCauser) override;
 
-        UPROPERTY(EditAnywhere, Category = Firing)
-          float LaunchSpeed = 4000;
+        UPROPERTY(EditDefaultsOnly, Category = "Setup")
+         int32 MaxHealth = 5;
 
-        UPROPERTY(EditAnywhere, Category = Setup)
-          TSubclassOf<AProjectile> ProjectileBlueprint;
-
-        UTankBarrel* Barrel = nullptr;
+        int32 CurrentHealth;
 };

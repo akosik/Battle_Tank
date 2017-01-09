@@ -1,9 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Battle_Tank.h"
-#include "TankBarrel.h"
-#include "Projectile.h"
-#include "TankAimingComponent.h"
 #include "Tank.h"
 
 
@@ -12,46 +9,23 @@ ATank::ATank()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-
-        TankAimingComponent = CreateDefaultSubobject<UTankAimingComponent>(FName("Aiming Component"));
 }
 
-// Called when the game starts or when spawned
 void ATank::BeginPlay()
 {
-	Super::BeginPlay();
-
+  Super::BeginPlay();
+  CurrentHealth = MaxHealth;
 }
 
-// Called to bind functionality to input
-void ATank::SetupPlayerInputComponent(class UInputComponent* InputComponent)
+float ATank::TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController * EventInstigator, AActor * DamageCauser)
 {
-	Super::SetupPlayerInputComponent(InputComponent);
-
+  int32 DamageToApply = FMath::Clamp<float>(FPlatformMath::RoundToInt(DamageAmount), 0, CurrentHealth);
+  CurrentHealth -= DamageToApply;
+  if(CurrentHealth <= 0) { OnDeath.Broadcast(); }
+  return DamageToApply;
 }
 
-void ATank::AimAt(FVector& HitLocation)
+float ATank::GetHealthPercent() const
 {
-  TankAimingComponent->AimAt(HitLocation, LaunchSpeed);
-}
-
-void ATank::SetBarrelReference(UTankBarrel* BarrelToSet)
-{
-  TankAimingComponent->SetBarrelReference(BarrelToSet);
-  Barrel = BarrelToSet;
-}
-
-void ATank::SetTurretReference(UTankTurret* TurretToSet)
-{
-  TankAimingComponent->SetTurretReference(TurretToSet);
-}
-
-void ATank::Fire()
-{
-  UE_LOG(LogTemp, Warning, TEXT("Firing at: %f"), LaunchSpeed)
-
-  if(!Barrel) { return; }
-  AProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileBlueprint, Barrel->GetSocketLocation(FName("FiringPoint")), Barrel->GetSocketRotation(FName("FiringPoint")) );
-
-  SpawnedProjectile->LaunchProjectile(LaunchSpeed);
+  return (float) CurrentHealth / (float) MaxHealth;
 }

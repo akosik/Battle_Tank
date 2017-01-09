@@ -1,34 +1,39 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Battle_Tank.h"
+#include "TankAimingComponent.h"
 #include "Tank.h"
 #include "TankAIController.h"
 
-
-void ATankAIController::BeginPlay()
+void ATankAIController::SetPawn(APawn* InPawn)
 {
-  Super::BeginPlay();
+  Super::SetPawn(InPawn);
+  if(InPawn)
+    {
+      ATank* PossessedTank = Cast<ATank>(InPawn);
+      if(!ensure(PossessedTank)) { return; }
 
-  ATank* player_tank = GetPlayerTank();
+      PossessedTank->OnDeath.AddUniqueDynamic(this, &ATankAIController::OnTankDeath);
+    }
+
 }
 
 void ATankAIController::Tick(float DeltaSeconds)
 {
-  if(GetPlayerTank())
+  APawn* PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
+  UTankAimingComponent* AITankAimComp = GetPawn()->FindComponentByClass<UTankAimingComponent>();
+  if(ensure(PlayerPawn && AITankAimComp))
     {
-      FVector PlayerTankLocation = GetPlayerTank()->GetActorLocation();
-      GetAITank()->AimAt(PlayerTankLocation);
+      MoveToActor(PlayerPawn, AcceptanceRadius);
+      FVector PlayerPawnLocation = PlayerPawn->GetActorLocation();
+      AITankAimComp->AimAt(PlayerPawnLocation);
+      if(AITankAimComp->GetFiringState() == EFiringStatus::Locked) { AITankAimComp->Fire(); }
     }
 }
 
-ATank* ATankAIController::GetAITank() const
-{
-  return Cast<ATank>(GetPawn());
-}
 
-ATank* ATankAIController::GetPlayerTank() const
+void ATankAIController::OnTankDeath()
 {
-  ATank* player_tank = Cast<ATank>(GetWorld()->GetFirstPlayerController()->GetPawn());
-  if(!player_tank) return nullptr;
-  else return player_tank;
+  if(!GetPawn()) { return; }
+  GetPawn()->DetachFromControllerPendingDestroy();
 }
