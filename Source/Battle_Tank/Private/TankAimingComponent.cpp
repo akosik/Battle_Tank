@@ -22,6 +22,7 @@ void UTankAimingComponent::BeginPlay()
 {
 	Super::BeginPlay();
         LastFireTime = FPlatformTime::Seconds();
+        OnAimCompReady.Broadcast();
 }
 
 void UTankAimingComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction * ThisTickFunction)

@@ -8,8 +8,6 @@
 void ATankPlayerController::BeginPlay()
 {
   Super::BeginPlay();
-  AimComp = GetPawn()->FindComponentByClass<UTankAimingComponent>();
-  if(ensure(AimComp)) { FoundAimingComponent(AimComp); }
 }
 
 void ATankPlayerController::SetPawn(APawn* InPawn)
@@ -20,19 +18,53 @@ void ATankPlayerController::SetPawn(APawn* InPawn)
       ATank* PossesedTank = Cast<ATank>(InPawn);
       if(!ensure(InPawn)) { return; }
 
+      // Listen for Tank Death
       PossesedTank->OnDeath.AddUniqueDynamic(this, &ATankPlayerController::OnTankDeath);
+
+      // Find aiming component
+      AimComp = GetPawn()->FindComponentByClass<UTankAimingComponent>();
+      if(ensure(AimComp)) { FoundAimingComponent(AimComp); }
     }
 }
 
-void ATankPlayerController::OnTankDeath()
+void ATankPlayerController::OnTankDeath_Implementation()
 {
-  StartSpectatingOnly();
+  if(!GetPawn()) { return; }
+  ChangeToSpectatingState();
+
+  FTimerHandle TimerHandle;
+  GetWorldTimerManager().SetTimer(TimerHandle, this, &ATankPlayerController::ToggleReadyToRespawn, RespawnTime, false);
 }
+
+void ATankPlayerController::ToggleReadyToRespawn()
+{
+  bIsReadyToRespawn = !bIsReadyToRespawn;
+}
+
+bool ATankPlayerController::GetReadyToRespawn()
+{
+  return bIsReadyToRespawn;
+}
+
 
 void ATankPlayerController::Tick( float deltatime )
 {
   Super::Tick(deltatime);
   AimTowardsCrosshair();
+}
+
+void ATankPlayerController::ChangeToPlayingState()
+{
+  EndSpectatingState();
+  ChangeState(NAME_Playing);
+  BeginPlayingState();
+}
+
+void ATankPlayerController::ChangeToSpectatingState()
+{
+  EndPlayingState();
+  ChangeState(NAME_Spectating);
+  BeginSpectatingState();
 }
 
 void ATankPlayerController::AimTowardsCrosshair()

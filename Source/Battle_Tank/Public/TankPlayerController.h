@@ -15,9 +15,30 @@ class BATTLE_TANK_API ATankPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
-          protected:
+public:
+  UFUNCTION(BlueprintCallable, Category = "Respawn")
+  bool GetReadyToRespawn();
+
+  UFUNCTION(BlueprintCallable, Category = "Respawn")
+    void ToggleReadyToRespawn();
+
+protected:
   UFUNCTION(BlueprintImplementableEvent, Category = "Setup")
     void FoundAimingComponent(UTankAimingComponent* AimCompRef);
+
+  // Changes current controller state to playing, this must be called after possess in order for the controller to take control of the pawn
+  UFUNCTION(BlueprintCallable, Category = "Respawn")
+    void ChangeToPlayingState();
+
+  // Changes current controller state to spectating, this is called on tank death
+  UFUNCTION(BlueprintCallable, Category = "Respawn")
+    void ChangeToSpectatingState();
+
+  UFUNCTION(BlueprintNativeEvent, Category = "Death")
+  void OnTankDeath();
+
+  UPROPERTY( EditDefaultsOnly, BlueprintReadOnly, Category = "Respawn")
+    float RespawnTime = 5.f;
 
  private:
   virtual  void BeginPlay() override;
@@ -29,9 +50,6 @@ class BATTLE_TANK_API ATankPlayerController : public APlayerController
   bool GetSightRayHitLocation(FVector& HitLocation) const;
 
   void SetPawn(APawn* InPawn);
-
-  UFUNCTION()
-    void OnTankDeath();
 
   UPROPERTY( EditDefaultsOnly )
     float CrosshairXLocation = .5;
@@ -47,4 +65,6 @@ class BATTLE_TANK_API ATankPlayerController : public APlayerController
   bool GetLookVectorHitLocation(FVector& LookDirection, FVector& HitLocation) const;
 
   UTankAimingComponent* AimComp;
+
+  bool bIsReadyToRespawn = false;
 };

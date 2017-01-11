@@ -5,6 +5,8 @@
 #include "Components/ActorComponent.h"
 #include "TankAimingComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTankAimCompDelegate);
+
 class UTankBarrel;
 class UTankTurret;
 class AProjectile;
@@ -36,6 +38,8 @@ public:
 
   UFUNCTION(BlueprintCallable, Category = "Firing")
   int32 GetAmmo() const;
+
+  FTankAimCompDelegate OnAimCompReady;
 
  protected:
   UPROPERTY(BluePrintReadOnly, Category = "State")

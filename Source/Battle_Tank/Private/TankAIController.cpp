@@ -22,7 +22,7 @@ void ATankAIController::Tick(float DeltaSeconds)
 {
   APawn* PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
   UTankAimingComponent* AITankAimComp = GetPawn()->FindComponentByClass<UTankAimingComponent>();
-  if(ensure(PlayerPawn && AITankAimComp))
+  if(PlayerPawn && AITankAimComp)
     {
       MoveToActor(PlayerPawn, AcceptanceRadius);
       FVector PlayerPawnLocation = PlayerPawn->GetActorLocation();

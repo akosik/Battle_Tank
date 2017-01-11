@@ -16,7 +16,12 @@ public:
   UFUNCTION(BlueprintPure, Category = "Health")
   float GetHealthPercent() const;
 
+  // Multicast dynamic delegate, alerts controllers of tank death
   FTankDelegate OnDeath;
+
+ protected:
+  UFUNCTION(BlueprintCallable, Category = "Forces")
+    void UprightTank();
 
 private:
 	// Sets default values for this pawn's properties
@@ -26,8 +31,14 @@ private:
 
         float TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController * EventInstigator, AActor * DamageCauser) override;
 
+        // Wrapper for calling Destroy after tank death
+        void DestroyTank();
+
         UPROPERTY(EditDefaultsOnly, Category = "Setup")
          int32 MaxHealth = 5;
 
         int32 CurrentHealth;
+
+        UPROPERTY(EditDefaultsOnly, Category = "Setup")
+          int32 UprightForceStrength = 100000000;
 };

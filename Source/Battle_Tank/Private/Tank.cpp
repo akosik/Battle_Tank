@@ -21,11 +21,30 @@ float ATank::TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEv
 {
   int32 DamageToApply = FMath::Clamp<float>(FPlatformMath::RoundToInt(DamageAmount), 0, CurrentHealth);
   CurrentHealth -= DamageToApply;
-  if(CurrentHealth <= 0) { OnDeath.Broadcast(); }
+  if(CurrentHealth <= 0)
+    {
+      // Die and Destruct
+      OnDeath.Broadcast();
+      FTimerHandle TimerHandle;
+      GetWorldTimerManager().SetTimer(TimerHandle, this, &ATank::DestroyTank, 3.f, false);
+    }
   return DamageToApply;
+}
+
+void ATank::DestroyTank()
+{
+  Destroy();
 }
 
 float ATank::GetHealthPercent() const
 {
   return (float) CurrentHealth / (float) MaxHealth;
+}
+
+void ATank::UprightTank()
+{
+  UPrimitiveComponent* TankRoot = Cast<UPrimitiveComponent>(GetRootComponent());
+  FVector ForceApplied = -TankRoot->GetUpVector() * UprightForceStrength;
+  FVector ForceLocation = TankRoot->GetSocketLocation(FName("RightTrack"));
+  TankRoot->AddForceAtLocation(ForceApplied, ForceLocation);
 }
