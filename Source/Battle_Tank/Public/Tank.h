@@ -19,6 +19,9 @@ public:
   // Multicast dynamic delegate, alerts controllers of tank death
   FTankDelegate OnDeath;
 
+  UFUNCTION(BlueprintCallable, Category = "Death")
+    void Die();
+
  protected:
   UFUNCTION(BlueprintCallable, Category = "Forces")
     void UprightTank();

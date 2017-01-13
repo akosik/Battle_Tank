@@ -26,4 +26,6 @@ class BATTLE_TANK_API ATankAIController : public AAIController
         UFUNCTION()
           void OnTankDeath();
 
+        bool bIsFlippedOver();
+
 };

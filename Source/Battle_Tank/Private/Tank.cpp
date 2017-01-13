@@ -21,14 +21,15 @@ float ATank::TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEv
 {
   int32 DamageToApply = FMath::Clamp<float>(FPlatformMath::RoundToInt(DamageAmount), 0, CurrentHealth);
   CurrentHealth -= DamageToApply;
-  if(CurrentHealth <= 0)
-    {
-      // Die and Destruct
-      OnDeath.Broadcast();
-      FTimerHandle TimerHandle;
-      GetWorldTimerManager().SetTimer(TimerHandle, this, &ATank::DestroyTank, 3.f, false);
-    }
+  if(CurrentHealth <= 0){ Die(); }
   return DamageToApply;
+}
+
+void ATank::Die()
+{
+  OnDeath.Broadcast();
+  FTimerHandle TimerHandle;
+  GetWorldTimerManager().SetTimer(TimerHandle, this, &ATank::DestroyTank, 3.f, false);
 }
 
 void ATank::DestroyTank()
