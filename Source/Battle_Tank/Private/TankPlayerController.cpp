@@ -50,7 +50,8 @@ bool ATankPlayerController::GetReadyToRespawn()
 void ATankPlayerController::Tick( float deltatime )
 {
   Super::Tick(deltatime);
-  AimTowardsCrosshair();
+  if (bIsAlive)
+      AimTowardsCrosshair();
 }
 
 void ATankPlayerController::ChangeToPlayingState()
@@ -58,6 +59,7 @@ void ATankPlayerController::ChangeToPlayingState()
   EndSpectatingState();
   ChangeState(NAME_Playing);
   BeginPlayingState();
+  bIsAlive = true;
 }
 
 void ATankPlayerController::ChangeToSpectatingState()
@@ -65,6 +67,7 @@ void ATankPlayerController::ChangeToSpectatingState()
   EndPlayingState();
   ChangeState(NAME_Spectating);
   BeginSpectatingState();
+  bIsAlive = false;
 }
 
 void ATankPlayerController::AimTowardsCrosshair()

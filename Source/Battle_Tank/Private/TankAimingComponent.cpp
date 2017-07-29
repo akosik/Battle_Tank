@@ -1,3 +1,4 @@
+
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
@@ -54,7 +55,7 @@ int32 UTankAimingComponent::GetAmmo() const
 void UTankAimingComponent::AimAt(FVector& HitLocation)
 {
   if(!ensure(Barrel)) { return; }
-
+  UE_LOG(LogTemp, Warning, TEXT("Barrel: %d"), !ensure(Barrel));
   FVector OutLaunchVelocity;
   FVector StartLocation = Barrel->GetSocketLocation(FName("FiringPoint"));
   if( UGameplayStatics::SuggestProjectileVelocity(this, OutLaunchVelocity, StartLocation, HitLocation, LaunchSpeed, false, 0, 0, ESuggestProjVelocityTraceOption::DoNotTrace) )

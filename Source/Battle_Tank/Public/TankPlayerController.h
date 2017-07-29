@@ -67,4 +67,5 @@ protected:
   UTankAimingComponent* AimComp;
 
   bool bIsReadyToRespawn = false;
+  bool bIsAlive = false;
 };
