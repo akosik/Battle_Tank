@@ -23,7 +23,9 @@ void ATankPlayerController::SetPawn(APawn* InPawn)
 
       // Find aiming component
       AimComp = GetPawn()->FindComponentByClass<UTankAimingComponent>();
+      
       if(ensure(AimComp)) { FoundAimingComponent(AimComp); }
+      ChangeToPlayingState();
     }
 }
 

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameFramework/NavMovementComponent.h"
+#include "TankTrack.h"
 #include "TankMovementComponent.generated.h"
 
 /**
@@ -11,15 +12,16 @@
 UCLASS(meta = (BlueprintSpawnableComponent), ClassGroup = (Custom) )
 class BATTLE_TANK_API UTankMovementComponent : public UNavMovementComponent
 {
-	GENERATED_BODY()
-
-          public:
-
+  GENERATED_BODY()
+    
+public:
+    UTankMovementComponent();
+    
   UFUNCTION(BlueprintCallable, Category = "Setup")
-    void Initialize(UTankTrack* LeftTrackToSet, UTankTrack* RightTrackToSet);
+    void InitializeMovementComponent(UTankTrack* LeftTrackToSet, UTankTrack* RightTrackToSet);
 
   UFUNCTION(BlueprintCallable, Category = "Input")
-  void IntendMoveForward(float Throw);
+    void IntendMoveForward(float Throw);
 
   UFUNCTION(BlueprintCallable, Category = "Input")
     void IntendTurnRight(float Throw);
@@ -29,5 +31,4 @@ class BATTLE_TANK_API UTankMovementComponent : public UNavMovementComponent
 
   UTankTrack* LeftTrack = nullptr;
   UTankTrack* RightTrack = nullptr;
-
 };

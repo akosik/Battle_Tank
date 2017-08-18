@@ -22,6 +22,9 @@ public:
   UFUNCTION(BlueprintCallable, Category = "Death")
     void Die();
 
+  UPROPERTY(EditDefaultsOnly, Category = "Setup")
+    FVector CenterOfMass;
+
  protected:
   UFUNCTION(BlueprintCallable, Category = "Forces")
     void UprightTank();
@@ -31,6 +34,8 @@ private:
 	ATank();
 
         virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaTime) override;
 
         float TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController * EventInstigator, AActor * DamageCauser) override;
 

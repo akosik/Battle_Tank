@@ -12,18 +12,16 @@
 // Sets default values for this component's properties
 UTankAimingComponent::UTankAimingComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+  PrimaryComponentTick.bCanEverTick = true;
 }
 
 
 // Called when the game starts
 void UTankAimingComponent::BeginPlay()
 {
-	Super::BeginPlay();
-        LastFireTime = FPlatformTime::Seconds();
-        OnAimCompReady.Broadcast();
+  Super::BeginPlay();
+  LastFireTime = FPlatformTime::Seconds();
+  OnAimCompReady.Broadcast();
 }
 
 void UTankAimingComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction * ThisTickFunction)
@@ -55,7 +53,6 @@ int32 UTankAimingComponent::GetAmmo() const
 void UTankAimingComponent::AimAt(FVector& HitLocation)
 {
   if(!ensure(Barrel)) { return; }
-  UE_LOG(LogTemp, Warning, TEXT("Barrel: %d"), !ensure(Barrel));
   FVector OutLaunchVelocity;
   FVector StartLocation = Barrel->GetSocketLocation(FName("FiringPoint"));
   if( UGameplayStatics::SuggestProjectileVelocity(this, OutLaunchVelocity, StartLocation, HitLocation, LaunchSpeed, false, 0, 0, ESuggestProjVelocityTraceOption::DoNotTrace) )
@@ -88,7 +85,7 @@ void UTankAimingComponent::Fire()
 {
   if(EFiringState != EFiringStatus::Reloading && EFiringState != EFiringStatus::OutOfAmmo)
     {
-      if(!ensure(Barrel && ProjectileBlueprint)) { return; }
+      if(!ensure(Barrel) && !ensure(ProjectileBlueprint)) { return; }
       AProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileBlueprint, Barrel->GetSocketLocation(FName("FiringPoint")), Barrel->GetSocketRotation(FName("FiringPoint")) );
       SpawnedProjectile->LaunchProjectile(LaunchSpeed);
       LastFireTime = FPlatformTime::Seconds();

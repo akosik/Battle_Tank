@@ -23,7 +23,7 @@ void ATankAIController::Tick(float DeltaSeconds)
   // Move Toward Player, and Aim at player
   APawn* PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
   UTankAimingComponent* AITankAimComp = GetPawn()->FindComponentByClass<UTankAimingComponent>();
-  if(PlayerPawn && AITankAimComp)
+  if (PlayerPawn && AITankAimComp)
     {
       MoveToActor(PlayerPawn, AcceptanceRadius);
       FVector PlayerPawnLocation = PlayerPawn->GetActorLocation();
@@ -32,7 +32,7 @@ void ATankAIController::Tick(float DeltaSeconds)
     }
 
   // If Controlled Tank is flipped over, die
-  if(bIsFlippedOver()) { Cast<ATank>(GetPawn())->Die(); }
+  if (bIsFlippedOver()) { Cast<ATank>(GetPawn())->Die(); }
 }
 
 bool ATankAIController::bIsFlippedOver()
@@ -42,6 +42,6 @@ bool ATankAIController::bIsFlippedOver()
 
 void ATankAIController::OnTankDeath()
 {
-  if(!GetPawn()) { return; }
+  if (!GetPawn()) { return; }
   GetPawn()->DetachFromControllerPendingDestroy();
 }

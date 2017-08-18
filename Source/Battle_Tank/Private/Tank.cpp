@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Battle_Tank.h"
+#include "DrawDebugHelpers.h"
 #include "Tank.h"
 
 
@@ -8,13 +9,23 @@
 ATank::ATank()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 void ATank::BeginPlay()
 {
   Super::BeginPlay();
   CurrentHealth = MaxHealth;
+
+  // Lower Center Of Mass for Stability
+  Cast<UPrimitiveComponent>(GetRootComponent())->SetCenterOfMass(CenterOfMass);
+
+}
+
+void ATank::Tick(float DeltaTime)
+{
+  Super::Tick(DeltaTime);
+  DrawDebugPoint(GetWorld(), Cast<UPrimitiveComponent>(GetRootComponent())->GetCenterOfMass(), 10, FColor::Red, true);
 }
 
 float ATank::TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController * EventInstigator, AActor * DamageCauser)

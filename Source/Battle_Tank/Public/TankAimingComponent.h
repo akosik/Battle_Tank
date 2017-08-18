@@ -15,10 +15,10 @@ UENUM()
 enum class EFiringStatus : uint8
 {
   Locked,
-    Aiming,
-    Reloading,
-    OutOfAmmo
-    };
+  Aiming,
+  Reloading,
+  OutOfAmmo
+};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BATTLE_TANK_API UTankAimingComponent : public UActorComponent
