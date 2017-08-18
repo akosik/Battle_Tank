@@ -10,12 +10,15 @@ UTankTrack::UTankTrack()
   PrimaryComponentTick.bCanEverTick = true;
 }
 
-void UTankTrack::InitializeTrack(UInstancedStaticMeshComponent* TileToSet, USplineComponent* SplineToSet, TArray<UTankWheel*> WheelsToSet)
+void UTankTrack::InitializeTrack(UInstancedStaticMeshComponent* TileToSet, USplineComponent* SplineToSet, TArray<UTankWheel*> WheelsToSet, int32 NumberOfWheelsToSet)
 {
+  // Grab references to track parts
   TrackTiles = TileToSet;
   TrackSpline = SplineToSet;
   Wheels = WheelsToSet;
+  NumberOfWheels = NumberOfWheelsToSet;
 
+  // Instance treads along track spline
   InstancingStep = TrackSpline->GetSplineLength() / TreadsPerTrack;
   InstanceTilesAlongTrack();
 }
@@ -23,22 +26,28 @@ void UTankTrack::InitializeTrack(UInstancedStaticMeshComponent* TileToSet, USpli
 void UTankTrack::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction * ThisTickFunction)
 {
   Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-  for(int i = 0; i < 8; ++i)
+
+  // Apply drive force and reset throttle each tick
+  for(int i = 0; i < NumberOfWheels; ++i)
     DriveTrack(Wheels[i]);
   CurrentThrottle = 0;
-  ApplySidewaysForce();
-  UpdateTrackSpline(DeltaTime);
+
+  // Apply corrective side force to resist sliding sideways
+  ApplySidewaysForce(DeltaTime);
+
+  // Update track spline and treads
+  UpdateWheelsAndTrackSpline(DeltaTime);
   UpdateTrackTiles(DeltaTime);
 }
 
-void UTankTrack::ApplySidewaysForce()
+void UTankTrack::ApplySidewaysForce(float DeltaTime)
 {
-  float DeltaTime = GetWorld()->GetDeltaSeconds();
+  // Create force from sideways velocity and apply it to tank root
   float SlippageSpeed = FVector::DotProduct(GetRightVector(), GetOwner()->GetVelocity());
   FVector CorrectiveAcceleration = - SlippageSpeed / DeltaTime * GetRightVector();
   UStaticMeshComponent* TankRoot = Cast<UStaticMeshComponent>( GetOwner()->GetRootComponent() );
   FVector CorrectiveForce = CorrectiveAcceleration * TankRoot->GetMass() / 2; // Two tracks
-  TankRoot->AddForce(CorrectiveForce * AntiSlippageCoefficient);
+  TankRoot->AddForce(CorrectiveForce * AntiSlippageCoefficient); // "friction" coefficient mu
 }
 
 void UTankTrack::SetThrottle(float Throttle)
@@ -52,13 +61,13 @@ void UTankTrack::DriveTrack(UPrimitiveComponent* Wheel)
   FVector ForceLocation = Wheel->GetComponentLocation();
   UPrimitiveComponent* TankRoot = Cast<UPrimitiveComponent>(GetOwner()->GetRootComponent());
   TankRoot->AddForceAtLocation(ForceApplied, ForceLocation);
-  //DrawDebugLine(GetWorld(), ForceLocation, ForceLocation + ForceApplied, FColor::Blue, true);
 }
 
-void UTankTrack::UpdateTrackSpline(float DeltaTime)
+void UTankTrack::UpdateWheelsAndTrackSpline(float DeltaTime)
 {
   FVector Up = GetUpVector();
-  for (int8 i = 1; i < 7; ++i)
+  // Don't Update Sprocket and return roller (the first and last wheels)
+  for (int8 i = 1; i < NumberOfWheels - 1; ++i)
     {
       FHitResult HitResult;
       FVector StartRay;
@@ -66,6 +75,8 @@ void UTankTrack::UpdateTrackSpline(float DeltaTime)
       FVector PreviousWheelLocation = Wheels[i]->GetComponentLocation();
       Wheels[i]->GetAttachParent()->GetSocketWorldLocationAndRotation(Wheels[i]->GetAttachSocketName(), StartRay, Rotation);
       const FVector EndRay = StartRay - GetUpVector() * SuspensionLength;
+
+      // Raycast with sphere for custom ground trace channel
       if (GetWorld()->SweepSingleByChannel(HitResult, StartRay, EndRay, Rotation, ECollisionChannel::ECC_GameTraceChannel1, FCollisionShape::MakeSphere(Wheels[i]->Radius)) )
       	{
 	  Wheels[i]->SetWorldLocation(HitResult.Location);
@@ -73,7 +84,7 @@ void UTankTrack::UpdateTrackSpline(float DeltaTime)
 	  
 	  const float DeltaSuspensionLocation = (FVector::DotProduct(HitResult.Location, Up) - FVector::DotProduct(PreviousWheelLocation, Up));
 	  Wheels[i]->SuspensionCompressionLength = Wheels[i]->SuspensionCompressionLength + DeltaSuspensionLocation / SuspensionLength;	  
-	  AddSuspensionForceForWheel(Wheels[i],  FVector::DotProduct(Wheels[i]->GetPhysicsLinearVelocity(), Up));
+	  AddSuspensionForceForWheel(Wheels[i], FVector::DotProduct(Wheels[i]->GetPhysicsLinearVelocity(), Up)); //DeltaSuspensionLocation / DeltaTime
       	}
       else
       	{
@@ -83,7 +94,8 @@ void UTankTrack::UpdateTrackSpline(float DeltaTime)
       	}
     }
 
-  // For Loop Close Point
+  // For Spline Loop Close Point
+  // TODO: clean up spline point storage so this doesn't have to happen
   FHitResult HitResult;
   FVector StartRay;
   FQuat Rotation;
@@ -97,19 +109,27 @@ void UTankTrack::UpdateTrackSpline(float DeltaTime)
     {
       TrackSpline->SetLocationAtSplinePoint(TrackSpline->GetNumberOfSplinePoints(), EndRay - Wheels[1]->Radius * Up, ESplineCoordinateSpace::World);
     }
+
+  // Calculate Tangents for spline given updates
   TrackSpline->UpdateSpline();
 }
 
 void UTankTrack::AddSuspensionForceForWheel(UTankWheel* Wheel, const float SuspensionSpeed)
 {
+  // F = -kx - dv
   float DeltaTime = GetWorld()->GetDeltaSeconds();
-  const float ShockForceMagnitude = -SuspensionSpeed * SuspensionDamping;
+
+  // We drop the negative because the shock force is applied to the body, so we want the force to go up
+  // without having to go through a normal force
   const float SpringForceMagnitude = Wheel->SuspensionCompressionLength * SuspensionStiffness;
-  UPrimitiveComponent* TankRoot = Cast<UPrimitiveComponent>(GetOwner()->GetRootComponent());
+
+  // - dv
+  const float ShockForceMagnitude = -SuspensionSpeed * SuspensionDamping;
+
   const FVector ForceApplied = GetUpVector() * (ShockForceMagnitude + SpringForceMagnitude);
   const FVector ForceLocation = Wheel->GetComponentLocation();
-  // DrawDebugLine(GetWorld(), ForceLocation, ForceLocation + GetUpVector() * ShockForceMagnitude, FColor::Red, false, -1, 0, 1.f);
-  // DrawDebugLine(GetWorld(), ForceLocation, ForceLocation + GetUpVector() * SpringForceMagnitude, FColor::Green, false, -1, 0, 1.f);
+  
+  UPrimitiveComponent* TankRoot = Cast<UPrimitiveComponent>(GetOwner()->GetRootComponent());
   TankRoot->AddForceAtLocation(ForceApplied, ForceLocation);
 }
 
@@ -159,6 +179,7 @@ void UTankTrack::UpdateTrackTiles(float DeltaTime)
     }
 }
 
+// Helper for calculating the location of a tread along the spline, modulo the spline length
 float UTankTrack::CalculateWrappedTrackTileDistanceAlongSpline(float UnwrappedDistance)
 {
   float DisplacementModSplineLength = FGenericPlatformMath::Fmod(UnwrappedDistance, TrackSpline->GetSplineLength());

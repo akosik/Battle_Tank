@@ -49,32 +49,32 @@ public:
     int32 Ammo = 5;
 
 private:
-	// Sets default values for this component's properties
-	UTankAimingComponent();
+  // Sets default values for this component's properties
+  UTankAimingComponent();
 
-	// Called when the game starts
-	virtual void BeginPlay() override;
+  // Called when the game starts
+  virtual void BeginPlay() override;
 
-        void MoveBarrelTowards();
+  void MoveBarrelTowards();
 
-        virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction * ThisTickFunction) override;
+  virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction * ThisTickFunction) override;
 
-        bool IsBarrelMoving();
+  bool IsBarrelMoving();
 
-        UTankBarrel* Barrel = nullptr;
+  UTankBarrel* Barrel = nullptr;
 
-        UTankTurret* Turret = nullptr;
+  UTankTurret* Turret = nullptr;
 
-        UPROPERTY(EditDefaultsOnly, Category = "Firing")
-          float LaunchSpeed = 4000;
+  UPROPERTY(EditDefaultsOnly, Category = "Firing")
+    float LaunchSpeed = 4000;
 
-        UPROPERTY(EditDefaultsOnly, Category = "Setup")
-          TSubclassOf<AProjectile> ProjectileBlueprint;
+  UPROPERTY(EditDefaultsOnly, Category = "Setup")
+    TSubclassOf<AProjectile> ProjectileBlueprint;
 
-        UPROPERTY(EditDefaultsOnly, Category = "Firing")
-          float ReloadTime = 3;
+  UPROPERTY(EditDefaultsOnly, Category = "Firing")
+    float ReloadTime = 3;
 
-        double LastFireTime = 0;
+  double LastFireTime = 0;
 
-	FVector AimDirection;
+  FVector AimDirection;
 };

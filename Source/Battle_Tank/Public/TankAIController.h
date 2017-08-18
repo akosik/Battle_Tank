@@ -13,19 +13,19 @@ class UTankAimingComponent;
 UCLASS()
 class BATTLE_TANK_API ATankAIController : public AAIController
 {
-	GENERATED_BODY()
+  GENERATED_BODY()
 
-          private:
-        virtual void Tick(float DeltaSeconds) override;
+    private:
+    virtual void Tick(float DeltaSeconds) override;
 
-        virtual void SetPawn(APawn* InPawn) override;
+  virtual void SetPawn(APawn* InPawn) override;
 
-        UPROPERTY(EditDefaultsOnly, Category = "Test")
-        float AcceptanceRadius = 8000;
+  UPROPERTY(EditDefaultsOnly, Category = "Test")
+    float AcceptanceRadius = 8000;
 
-        UFUNCTION()
-          void OnTankDeath();
+  UFUNCTION()
+    void OnTankDeath();
 
-        bool bIsFlippedOver();
+  bool bIsFlippedOver();
 
 };

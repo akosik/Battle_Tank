@@ -16,7 +16,8 @@ void ATankPlayerController::SetPawn(APawn* InPawn)
   if(InPawn)
     {
       ATank* PossesedTank = Cast<ATank>(InPawn);
-      if(!ensure(InPawn)) { return; }
+      if(!ensure(InPawn))
+	return;
 
       // Listen for Tank Death
       PossesedTank->OnDeath.AddUniqueDynamic(this, &ATankPlayerController::OnTankDeath);
@@ -24,14 +25,16 @@ void ATankPlayerController::SetPawn(APawn* InPawn)
       // Find aiming component
       AimComp = GetPawn()->FindComponentByClass<UTankAimingComponent>();
       
-      if(ensure(AimComp)) { FoundAimingComponent(AimComp); }
+      if(ensure(AimComp))
+	FoundAimingComponent(AimComp);
       ChangeToPlayingState();
     }
 }
 
 void ATankPlayerController::OnTankDeath_Implementation()
 {
-  if(!GetPawn()) { return; }
+  if(!GetPawn())
+    return;
   ChangeToSpectatingState();
 
   FTimerHandle TimerHandle;

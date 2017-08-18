@@ -20,33 +20,25 @@ public:
   FTankDelegate OnDeath;
 
   UFUNCTION(BlueprintCallable, Category = "Death")
-    void Die();
+  void Die();
 
   UPROPERTY(EditDefaultsOnly, Category = "Setup")
-    FVector CenterOfMass;
-
- protected:
-  UFUNCTION(BlueprintCallable, Category = "Forces")
-    void UprightTank();
+  FVector CenterOfMass;
 
 private:
-	// Sets default values for this pawn's properties
-	ATank();
+  // Sets default values for this pawn's properties
+  ATank();
+  
+  virtual void BeginPlay() override;
+  
+  float TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController * EventInstigator, AActor * DamageCauser) override;
+  
+  // Wrapper for calling Destroy after tank death
+  void DestroyTank();
+  
+  UPROPERTY(EditDefaultsOnly, Category = "Setup")
+    int32 MaxHealth = 5;
 
-        virtual void BeginPlay() override;
-
-	virtual void Tick(float DeltaTime) override;
-
-        float TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController * EventInstigator, AActor * DamageCauser) override;
-
-        // Wrapper for calling Destroy after tank death
-        void DestroyTank();
-
-        UPROPERTY(EditDefaultsOnly, Category = "Setup")
-         int32 MaxHealth = 5;
-
-        int32 CurrentHealth;
-
-        UPROPERTY(EditDefaultsOnly, Category = "Setup")
-          int32 UprightForceStrength = 100000000;
+  int32 CurrentHealth;
+	
 };

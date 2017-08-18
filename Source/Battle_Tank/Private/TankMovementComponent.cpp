@@ -5,9 +5,7 @@
 #include "TankMovementComponent.h"
 
 UTankMovementComponent::UTankMovementComponent()
-{
-  PrimaryComponentTick.bCanEverTick = false;
-}
+{ }
 
 void UTankMovementComponent::InitializeMovementComponent(UTankTrack* LeftTrackToSet, UTankTrack* RightTrackToSet)
 {

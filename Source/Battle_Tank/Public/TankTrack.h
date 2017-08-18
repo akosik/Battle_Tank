@@ -14,18 +14,18 @@
 UCLASS(meta = (BlueprintSpawnableComponent) )
 class BATTLE_TANK_API UTankTrack : public UPrimitiveComponent
 {
-	GENERATED_BODY()
+  GENERATED_BODY()
 
-          public:
+    public:
   UFUNCTION(BlueprintCallable, Category = "Input")
     void SetThrottle(float Throttle);
 
   void DriveTrack(UPrimitiveComponent* Wheel);
 
   UFUNCTION(BlueprintCallable, Category = "Setup")
-    void InitializeTrack(UInstancedStaticMeshComponent* TileToSet, USplineComponent* SplineToSet, TArray<UTankWheel*> WheelsToSet);
+    void InitializeTrack(UInstancedStaticMeshComponent* TileToSet, USplineComponent* SplineToSet, TArray<UTankWheel*> WheelsToSet, int32 NumberOfWheelsToSet);
   
-  void UpdateTrackSpline(float DeltaTime);
+  void UpdateWheelsAndTrackSpline(float DeltaTime);
 
   void InstanceTilesAlongTrack();
 
@@ -54,7 +54,7 @@ class BATTLE_TANK_API UTankTrack : public UPrimitiveComponent
 
   void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction * ThisTickFunction);
 
-  void ApplySidewaysForce();
+  void ApplySidewaysForce(float DeltaTime);
 
   void AddSuspensionForceForWheel(UTankWheel* Wheel, const float SuspensionVelocity);
 
@@ -65,10 +65,9 @@ class BATTLE_TANK_API UTankTrack : public UPrimitiveComponent
   UInstancedStaticMeshComponent* TrackTiles;
   USplineComponent* TrackSpline;
   TArray<UTankWheel*> Wheels;
-
+  int32 NumberOfWheels;
+  
   float TileDisplacementAlongSpline = 0.0f;
   float InstancingStep;
-
-
   
 };

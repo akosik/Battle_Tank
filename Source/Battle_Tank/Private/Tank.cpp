@@ -4,13 +4,8 @@
 #include "DrawDebugHelpers.h"
 #include "Tank.h"
 
-
-// Sets default values
 ATank::ATank()
-{
- 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-}
+{ }
 
 void ATank::BeginPlay()
 {
@@ -20,12 +15,6 @@ void ATank::BeginPlay()
   // Lower Center Of Mass for Stability
   Cast<UPrimitiveComponent>(GetRootComponent())->SetCenterOfMass(CenterOfMass);
 
-}
-
-void ATank::Tick(float DeltaTime)
-{
-  Super::Tick(DeltaTime);
-  DrawDebugPoint(GetWorld(), Cast<UPrimitiveComponent>(GetRootComponent())->GetCenterOfMass(), 10, FColor::Red, true);
 }
 
 float ATank::TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController * EventInstigator, AActor * DamageCauser)
@@ -51,12 +40,4 @@ void ATank::DestroyTank()
 float ATank::GetHealthPercent() const
 {
   return (float) CurrentHealth / (float) MaxHealth;
-}
-
-void ATank::UprightTank()
-{
-  UPrimitiveComponent* TankRoot = Cast<UPrimitiveComponent>(GetRootComponent());
-  FVector ForceApplied = -TankRoot->GetUpVector() * UprightForceStrength;
-  FVector ForceLocation = TankRoot->GetSocketLocation(FName("RightTrack"));
-  TankRoot->AddForceAtLocation(ForceApplied, ForceLocation);
 }
